@@ -1,0 +1,14 @@
+[backends]
+  [backends.backend-sample]
+    [backends.backend-sample.servers.server1]
+    url = "http://192.168.1.1:8080"
+    weight = 1
+
+[frontends]
+  [frontends.frontend-sample]
+  backend = "backend-sample"
+  passHostHeader = true
+  priority = 1
+  #entrypoints = ["https"] # overrides defaultEntryPoints
+    [frontends.frontend-sample.routes.server1]
+    rule = "Host:sample.yourdomain.com"

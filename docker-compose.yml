@@ -1,0 +1,212 @@
+version: "3.6"
+services:
+
+    traefik:
+        hostname: traefik
+        image: traefik:latest
+        container_name: traefik
+        restart: always
+        domainname: ${DOMAINNAME}
+        networks:
+          - default
+          - traefik_proxy
+        ports:
+          - "80:80"
+          - "443:443"
+          - "8080:8080"
+        environment:
+          - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
+          - CLOUDFLARE_API_KEY=${CLOUDFLARE_API_KEY}
+        labels:
+          - "traefik.enable=true"
+          - "traefik.backend=traefik"
+          - "traefik.frontend.rule=Host:${TRAEFIK_FRONTEND}"  
+          - "traefik.port=8080"
+          - "traefik.docker.network=traefik_proxy"
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+          - ${USERDIR}/docker/traefik:/etc/traefik
+          - ${USERDIR}/docker/shared:/shared
+
+    portainer:
+      image: portainer/portainer:arm
+      container_name: portainer
+      restart: always
+      ports:
+        - "9000:9000"
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - ${USERDIR}/docker/portainer/data:/data
+        - ${USERDIR}/docker/shared:/shared
+      environment:
+        - TZ=${TZ}
+
+    homeassistant:
+      container_name: homeassistant
+      restart: always
+      image: homeassistant/raspberrypi3-homeassistant
+      depends_on: 
+        - mqtt
+      volumes:
+        - ${USERDIR}/docker/homeassistant:/config
+        - /etc/localtime:/etc/localtime:ro
+        - ${USERDIR}/docker/shared:/shared
+      privileged: true
+      environment:
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}
+      labels:
+        - "traefik.enable=true"
+        - "traefik.backend=homeassistant"
+        - "traefik.frontend.rule=Host:${HOMEASSISTANT_FRONTEND}"
+        - "traefik.port=8123"
+        - "traefik.docker.network=traefik_proxy"
+    
+    mqtt:
+      container_name: mqtt
+      restart: unless-stopped
+      image: eclipse-mosquitto:latest
+      volumes:
+        - ${USERDIR}/docker/mosquitto/config:/mosquitto/config
+        - ${USERDIR}/docker/mosquitto/log:/mosquitto/log
+        - ${USERDIR}/docker/mosquitto/data:/mosquitto/data
+        - /etc/localtime:/etc/localtime:ro
+      ports:
+        - "1883:1883"
+        - "9001:9001"   
+      environment:
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}
+
+    nextcloud:
+      container_name: nextcloud
+      restart: always
+      image: nextcloud:latest
+      links:
+        - mariadb
+        - redis
+      volumes:
+        - ${NEXTCLOUD_DATA}:/var/www/html
+      environment:
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}
+      networks:
+        - traefik_proxy
+        - default
+      labels:
+        - "traefik.enable=true"
+        - "traefik.backend=nextcloud"
+        - "traefik.frontend.rule=Host:${NEXTCLOUD_FRONTEND}"
+        - "traefik.docker.network=traefik_proxy"
+        - "traefik.port=80"
+
+    gogs:
+        container_name: gogs
+        restart: always
+        image: gogs/gogs-rpi
+        links:
+            - mariadb
+        ports:
+            - "${GOGS_SSH_PORT}:22"
+        volumes:
+          - ${GOGS_DATA}:/data
+        labels:
+          - "traefik.enable=true"
+          - "traefik.backend=gogs"
+          - "traefik.frontend.rule=Host:${GOGS_FRONTEND}"
+          - "traefik.port=3000"
+          - "traefik.docker.network=traefik_proxy"
+
+    ghost:
+      container_name: ghost
+      restart: always
+      image: arm32v7/ghost:${GHOST_TAG}
+      links:
+        - mariadb
+      networks:
+        - traefik_proxy
+        - default
+      volumes:
+        - ${USERDIR}/docker/ghost/content:/var/lib/ghost/content
+        - ${USERDIR}/docker/ghost/config.json:/var/lib/ghost/config.production.json
+      environment:
+        - NODE_ENV=production
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}
+        - database__client=${DBC_CLIENT}
+        - database__connection__host=${DBC_HOST}
+        - database__connection__user=${DBC_USER}
+        - database__connection__password=${DBC_PASS}
+        - database__connection__database=${DBC_DB}
+      labels:
+        - "traefik.enable=true"
+        - "traefik.backend=ghost"
+        - "traefik.domain=${GHOST_DOMAIN}"
+        - "traefik.frontend.rule=Host:${GHOST_FRONTEND}"
+        - "traefik.port=2368"
+        - "traefik.docker.network=traefik_proxy"
+
+    transmission:
+      image: haugene/transmission-openvpn:latest-armhf
+      container_name: "transmission"
+      cap_add:
+        - NET_ADMIN
+      devices:
+        - "/dev/net/tun"
+      restart: always
+      ports:
+        - "${TRANSMISSION_GUI_PORT}:9091"
+        - "${TRANSMISSION_PROXY_PORT}:8888"
+      dns:
+        - 8.8.8.8
+        - 8.8.4.4
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - ${TRANSMISSION_DATA}:/data
+        - ${USERDIR}/docker/transmission/:/etc/openvpn/custom
+      environment:
+        - OPENVPN_PROVIDER=CUSTOM
+        - OPENVPN_USERNAME=${OPENVPN_USERNAME}
+        - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+        - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
+        - LOCAL_NETWORK=${LOCAL_NETWORK}
+        - PUID=${TRANSMISSION_PUID}
+        - PGID=${TRANSMISSION_PGID}
+        - TZ=${TZ}
+
+    redis:
+      image: arm32v7/redis:latest
+      hostname: redis
+      container_name: "redis"
+      restart: always
+      networks:
+        - default
+
+    mariadb:
+       image: hypriot/rpi-mysql:latest
+       container_name: "mariadb"
+       hostname: mariadb
+       volumes:
+           - ${USERDIR}/docker/mariadb:/var/lib/mysql
+       ports:
+         - target: ${MYSQL_PORT}
+           published: ${MYSQL_PORT}
+           protocol: tcp
+           mode: host
+       restart: always
+       environment:
+         - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+         - PUID=${PUID}
+         - PGID=${PGID}
+         - TZ=${TZ}
+
+networks:
+  traefik_proxy:
+    external:
+      name: traefik_proxy
+  default:
+    driver: bridge

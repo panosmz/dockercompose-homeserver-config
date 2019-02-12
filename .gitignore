@@ -1,0 +1,17 @@
+# Ignore everything
+/*
+
+# But not these files
+!.gitignore
+!README.md
+!docker-compose.yml
+!example.env
+!traefik
+!traefik/rules.toml
+!traefik/traefik.toml
+
+#make sure these are ignored
+traefik/acme/*
+traefik/rules.toml
+traefik/traefik.toml
+.env
