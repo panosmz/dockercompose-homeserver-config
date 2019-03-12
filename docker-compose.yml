@@ -177,6 +177,21 @@ services:
         - PUID=${TRANSMISSION_PUID}
         - PGID=${TRANSMISSION_PGID}
         - TZ=${TZ}
+    
+    tautulli:
+      container_name: tautulli
+      restart: always
+      image: linuxserver/tautulli
+      volumes:
+        - ${USERDIR}/docker/tautulli/config:/config
+        - ${PLEX_LOGS_PATH}:/logs:ro
+        - ${USERDIR}/docker/shared:/shared
+      ports:
+        - "${TAUTULLI_PORT}:8181"
+      environment:
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}  
 
     redis:
       image: arm32v7/redis:latest
