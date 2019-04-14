@@ -174,8 +174,8 @@ services:
         - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
         - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
         - LOCAL_NETWORK=${LOCAL_NETWORK}
-        - PUID=${TRANSMISSION_PUID}
-        - PGID=${TRANSMISSION_PGID}
+        - PUID=${MEDIA_PUID}
+        - PGID=${MEDIA_PGID}
         - TZ=${TZ}
     
     tautulli:
@@ -197,8 +197,8 @@ services:
       image: linuxserver/headphones
       container_name: headphones
       environment:
-        - PUID=${PUID}
-        - PGID=${PGID}
+        - PUID=${MEDIA_PUID}
+        - PGID=${MEDIA_PGID}
         - TZ=${TZ}
       volumes:
         - ${USERDIR}/docker/headphones/config:/config
@@ -212,8 +212,8 @@ services:
       image: linuxserver/beets
       container_name: beets
       environment:
-        - PUID=${PUID}
-        - PGID=${PGID}
+        - PUID=${MEDIA_PUID}
+        - PGID=${MEDIA_PGID}
         - TZ=${TZ}
       volumes:
         - ${USERDIR}/docker/beets/config:/config
@@ -227,8 +227,8 @@ services:
       image: linuxserver/radarr
       container_name: radarr
       environment:
-        - PUID=${PUID}
-        - PGID=${PGID}
+        - PUID=${MEDIA_PUID}
+        - PGID=${MEDIA_PGID}
         - TZ=${TZ}
       volumes:
         - ${USERDIR}/docker/radarr/config:/config
@@ -242,8 +242,8 @@ services:
       image: linuxserver/sonarr
       container_name: sonarr
       environment:
-        - PUID=${PUID}
-        - PGID=${PGID}
+        - PUID=${MEDIA_PUID}
+        - PGID=${MEDIA_PGID}
         - TZ=${TZ}
       volumes:
         - ${USERDIR}/docker/sonarr/config:/config
