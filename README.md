@@ -11,5 +11,9 @@ Various services running on my [Raspberry Pi 3](https://www.raspberrypi.org/prod
 * [Ghost](https://hub.docker.com/r/arm32v7/ghost/) - Blogging Platform
 * [Transmission-OpenVPN](https://hub.docker.com/r/haugene/transmission-openvpn) - Transmission torrent client through OpenVPN
 * [Tautulli](https://hub.docker.com/r/linuxserver/tautulli/) - Plex Media Server Monitoring
+* [Headphones](https://hub.docker.com/r/linuxserver/headphones/) - Automated music downloader for NZB and Torrent
+* [Beets](https://hub.docker.com/r/linuxserver/beets) - Music library manager
+* [Sonarr](https://hub.docker.com/r/linuxserver/sonarr) - PVR for torrents
+* [Radarr](https://hub.docker.com/r/linuxserver/radarr) - A fork of Sonarr to work with movies
 * [Redis](https://hub.docker.com/r/arm32v7/redis/) - In-Memory Key-Value Store
 * [MariaDB](https://hub.docker.com/r/hypriot/rpi-mysql/) - MariaDB MySQL Database Server

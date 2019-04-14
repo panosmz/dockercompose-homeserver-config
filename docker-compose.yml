@@ -193,6 +193,66 @@ services:
         - PGID=${PGID}
         - TZ=${TZ}  
 
+    headphones:
+      image: linuxserver/headphones
+      container_name: headphones
+      environment:
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}
+      volumes:
+        - ${USERDIR}/docker/headphones/config:/config
+        - ${HEADPHONES_DOWNLOADS}:/downloads
+        - ${HEADPHONES_MUSIC}:/music
+      ports:
+        - "${HEADPHONES_PORT}:8181"
+      restart: unless-stopped
+
+    beets:
+      image: linuxserver/beets
+      container_name: beets
+      environment:
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}
+      volumes:
+        - ${USERDIR}/docker/beets/config:/config
+        - ${HEADPHONES_MUSIC}:/music
+        - ${HEADPHONES_DOWNLOADS}:/downloads
+      ports:
+        - "${BEETS_PORT}:8337"
+      restart: unless-stopped
+
+    radarr:
+      image: linuxserver/radarr
+      container_name: radarr
+      environment:
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}
+      volumes:
+        - ${USERDIR}/docker/radarr/config:/config
+        - ${MOVIES_PATH}:/movies
+        - ${TRANSMISSION_DATA}/completed:/downloads
+      ports:
+        - "${RADARR_PORT}:7878"
+      restart: unless-stopped
+
+    sonarr:
+      image: linuxserver/sonarr
+      container_name: sonarr
+      environment:
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}
+      volumes:
+        - ${USERDIR}/docker/sonarr/config:/config
+        - ${SERIES_PATH}:/tv
+        - ${TRANSMISSION_DATA}/completed:/downloads
+      ports:
+        - "${SONARR_PORT}:8989"
+      restart: unless-stopped
+
     redis:
       image: arm32v7/redis:latest
       hostname: redis
