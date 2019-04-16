@@ -158,6 +158,8 @@ services:
       devices:
         - "/dev/net/tun"
       restart: always
+      networks:
+        - media_net
       ports:
         - "${TRANSMISSION_GUI_PORT}:9091"
         - "${TRANSMISSION_PROXY_PORT}:8888"
@@ -201,6 +203,8 @@ services:
     jackett:
       image: linuxserver/jackett
       container_name: jackett
+      networks:
+        - media_net
       environment:
         - PUID=${MEDIA_PUID}
         - PGID=${MEDIA_PGID}
@@ -229,6 +233,8 @@ services:
     headphones:
       image: linuxserver/headphones
       container_name: headphones
+      networks:
+        - media_net
       environment:
         - PUID=${MEDIA_PUID}
         - PGID=${MEDIA_PGID}
@@ -259,6 +265,8 @@ services:
     radarr:
       image: linuxserver/radarr
       container_name: radarr
+      networks:
+        - media_net
       environment:
         - PUID=${MEDIA_PUID}
         - PGID=${MEDIA_PGID}
@@ -274,6 +282,8 @@ services:
     sonarr:
       image: linuxserver/sonarr
       container_name: sonarr
+      networks:
+        - media_net
       environment:
         - PUID=${MEDIA_PUID}
         - PGID=${MEDIA_PGID}
@@ -316,5 +326,7 @@ networks:
   traefik_proxy:
     external:
       name: traefik_proxy
+  media_net:
+    driver: bridge
   default:
     driver: bridge
