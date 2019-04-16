@@ -13,7 +13,6 @@ Various services running on my [Raspberry Pi 3](https://www.raspberrypi.org/prod
 * [Tautulli](https://hub.docker.com/r/linuxserver/tautulli/) - Plex Media Server Monitoring
 * [Jackett](https://hub.docker.com/r/linuxserver/jackett) - Torrent Proxy
 * [Calibre-Web](https://hub.docker.com/r/linuxserver/calibre-web) - Interface for browsing, reading and downloading eBooks
-* [Organizr](https://hub.docker.com/r/linuxserver/organizr) - Homelab Services Organizer
 * [Headphones](https://hub.docker.com/r/linuxserver/headphones/) - Automated music downloader for NZB and Torrent
 * [Beets](https://hub.docker.com/r/linuxserver/beets) - Music library manager
 * [Sonarr](https://hub.docker.com/r/linuxserver/sonarr) - PVR for torrents
