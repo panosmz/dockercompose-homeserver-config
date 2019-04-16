@@ -177,6 +177,11 @@ services:
         - PUID=${MEDIA_PUID}
         - PGID=${MEDIA_PGID}
         - TZ=${TZ}
+        - TRANSMISSION_SPEED_LIMIT_DOWN=50000
+        - TRANSMISSION_SPEED_LIMIT_UP=20000
+        - TRANSMISSION_SPEED_LIMIT_UP_ENABLED=true
+        - TRANSMISSION_RATIO_LIMIT=0
+        - TRANSMISSION_RATIO_LIMIT_ENABLED=true
     
     tautulli:
       container_name: tautulli
