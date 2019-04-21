@@ -247,21 +247,6 @@ services:
         - "${HEADPHONES_PORT}:8181"
       restart: unless-stopped
 
-    beets:
-      image: linuxserver/beets
-      container_name: beets
-      environment:
-        - PUID=${MEDIA_PUID}
-        - PGID=${MEDIA_PGID}
-        - TZ=${TZ}
-      volumes:
-        - ${USERDIR}/docker/beets/config:/config
-        - ${HEADPHONES_MUSIC}:/music
-        - ${HEADPHONES_DOWNLOADS}:/downloads
-      ports:
-        - "${BEETS_PORT}:8337"
-      restart: unless-stopped
-
     radarr:
       image: linuxserver/radarr
       container_name: radarr

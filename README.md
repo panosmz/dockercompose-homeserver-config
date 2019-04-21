@@ -14,7 +14,6 @@ Various services running on my [Raspberry Pi 3](https://www.raspberrypi.org/prod
 * [Jackett](https://hub.docker.com/r/linuxserver/jackett) - Torrent Proxy
 * [Calibre-Web](https://hub.docker.com/r/linuxserver/calibre-web) - Interface for browsing, reading and downloading eBooks
 * [Headphones](https://hub.docker.com/r/linuxserver/headphones/) - Automated music downloader for NZB and Torrent
-* [Beets](https://hub.docker.com/r/linuxserver/beets) - Music library manager
 * [Sonarr](https://hub.docker.com/r/linuxserver/sonarr) - PVR for torrents
 * [Radarr](https://hub.docker.com/r/linuxserver/radarr) - A fork of Sonarr to work with movies
 * [Redis](https://hub.docker.com/r/arm32v7/redis/) - In-Memory Key-Value Store
