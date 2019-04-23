@@ -214,7 +214,6 @@ services:
         - ${TRANSMISSION_DATA}/completed:/downloads
       ports:
         - "${JACKETT_PORT}:9117"
-      restart: unless-stopped
 
     calibre:
       image: linuxserver/calibre-web
@@ -228,7 +227,6 @@ services:
         - ${BOOKS_PATH}:/books
       ports:
         - "${CALIBRE_PORT}:8083"
-      restart: unless-stopped
 
     headphones:
       image: linuxserver/headphones
@@ -245,7 +243,6 @@ services:
         - ${HEADPHONES_MUSIC}:/music
       ports:
         - "${HEADPHONES_PORT}:8181"
-      restart: unless-stopped
 
     radarr:
       image: linuxserver/radarr
@@ -262,7 +259,6 @@ services:
         - ${TRANSMISSION_DATA}/completed:/downloads
       ports:
         - "${RADARR_PORT}:7878"
-      restart: unless-stopped
 
     sonarr:
       image: linuxserver/sonarr
@@ -279,7 +275,6 @@ services:
         - ${TRANSMISSION_DATA}/completed:/downloads
       ports:
         - "${SONARR_PORT}:8989"
-      restart: unless-stopped
 
     redis:
       image: arm32v7/redis:latest
