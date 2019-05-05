@@ -9,9 +9,15 @@
 !traefik
 !traefik/rules.toml
 !traefik/traefik.toml
+!docker-cleanup.sh
+!media
+media/*
+!media/docker-compose.yml
+!media/example.env
 
 #make sure these are ignored
 traefik/acme/*
 traefik/rules.toml
 traefik/traefik.toml
 .env
+media/.env

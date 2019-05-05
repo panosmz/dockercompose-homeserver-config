@@ -1,0 +1,132 @@
+version: "3.6"
+services:
+
+    transmission:
+      image: haugene/transmission-openvpn:latest-armhf
+      container_name: "transmission"
+      cap_add:
+        - NET_ADMIN
+      devices:
+        - "/dev/net/tun"
+      restart: unless-stopped
+      networks:
+        - media_net
+      ports:
+        - "${TRANSMISSION_GUI_PORT}:9091"
+        - "${TRANSMISSION_PROXY_PORT}:8888"
+      dns:
+        - 8.8.8.8
+        - 8.8.4.4
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - ${TRANSMISSION_DATA}:/data
+        - ${USERDIR}/docker/media/transmission/:/etc/openvpn/custom
+      environment:
+        - OPENVPN_PROVIDER=CUSTOM
+        - OPENVPN_USERNAME=${OPENVPN_USERNAME}
+        - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+        - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
+        - LOCAL_NETWORK=${LOCAL_NETWORK}
+        - PUID=${MEDIA_PUID}
+        - PGID=${MEDIA_PGID}
+        - TZ=${TZ}
+        - TRANSMISSION_SPEED_LIMIT_DOWN=50000
+        - TRANSMISSION_SPEED_LIMIT_UP=20000
+        - TRANSMISSION_SPEED_LIMIT_UP_ENABLED=true
+        - TRANSMISSION_RATIO_LIMIT=0
+        - TRANSMISSION_RATIO_LIMIT_ENABLED=true
+    
+    tautulli:
+      container_name: tautulli
+      restart: unless-stopped
+      image: linuxserver/tautulli
+      volumes:
+        - ${USERDIR}/docker/media/tautulli/config:/config
+        - ${PLEX_LOGS_PATH}:/logs:ro
+        - ${USERDIR}/docker/media/shared:/shared
+      ports:
+        - "${TAUTULLI_PORT}:8181"
+      environment:
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}  
+
+    jackett:
+      image: linuxserver/jackett
+      container_name: jackett
+      networks:
+        - media_net
+      environment:
+        - PUID=${MEDIA_PUID}
+        - PGID=${MEDIA_PGID}
+        - TZ=${TZ}
+      volumes:
+        - ${USERDIR}/docker/media/jackett/config:/config
+        - ${TRANSMISSION_DATA}/completed:/downloads
+      ports:
+        - "${JACKETT_PORT}:9117"
+
+    calibre:
+      image: linuxserver/calibre-web
+      container_name: calibre
+      environment:
+        - PUID=${MEDIA_PUID}
+        - PGID=${MEDIA_PGID}
+        - TZ=${TZ}
+      volumes:
+        - ${USERDIR}/docker/media/calibre/config:/config
+        - ${BOOKS_PATH}:/books
+      ports:
+        - "${CALIBRE_PORT}:8083"
+
+    headphones:
+      image: linuxserver/headphones
+      container_name: headphones
+      networks:
+        - media_net
+      environment:
+        - PUID=${MEDIA_PUID}
+        - PGID=${MEDIA_PGID}
+        - TZ=${TZ}
+      volumes:
+        - ${USERDIR}/docker/media/headphones/config:/config
+        - ${HEADPHONES_DOWNLOADS}:/downloads
+        - ${HEADPHONES_MUSIC}:/music
+      ports:
+        - "${HEADPHONES_PORT}:8181"
+
+    radarr:
+      image: linuxserver/radarr
+      container_name: radarr
+      networks:
+        - media_net
+      environment:
+        - PUID=${MEDIA_PUID}
+        - PGID=${MEDIA_PGID}
+        - TZ=${TZ}
+      volumes:
+        - ${USERDIR}/docker/media/radarr/config:/config
+        - ${MOVIES_PATH}:/movies
+        - ${TRANSMISSION_DATA}/completed:/downloads
+      ports:
+        - "${RADARR_PORT}:7878"
+
+    sonarr:
+      image: linuxserver/sonarr
+      container_name: sonarr
+      networks:
+        - media_net
+      environment:
+        - PUID=${MEDIA_PUID}
+        - PGID=${MEDIA_PGID}
+        - TZ=${TZ}
+      volumes:
+        - ${USERDIR}/docker/media/sonarr/config:/config
+        - ${SERIES_PATH}:/tv
+        - ${TRANSMISSION_DATA}/completed:/downloads
+      ports:
+        - "${SONARR_PORT}:8989"
+
+networks:
+  media_net:
+    driver: bridge
