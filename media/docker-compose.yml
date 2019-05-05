@@ -35,6 +35,9 @@ services:
         - TRANSMISSION_SPEED_LIMIT_UP_ENABLED=true
         - TRANSMISSION_RATIO_LIMIT=0
         - TRANSMISSION_RATIO_LIMIT_ENABLED=true
+        - TRANSMISSION_WEB_UI=combustion
+        - WEBPROXY_ENABLED=true
+        - WEBPROXY_PORT=${TRANSMISSION_PROXY_PORT}
     
     tautulli:
       container_name: tautulli
