@@ -10,7 +10,7 @@ services:
         - "/dev/net/tun"
       restart: unless-stopped
       networks:
-        - media_net
+        - plexnet
       ports:
         - "${TRANSMISSION_GUI_PORT}:9091"
         - "${TRANSMISSION_PROXY_PORT}:8888"
@@ -38,6 +38,37 @@ services:
         - TRANSMISSION_WEB_UI=combustion
         - WEBPROXY_ENABLED=true
         - WEBPROXY_PORT=${TRANSMISSION_PROXY_PORT}
+
+    transmission-proxy:
+      image: haugene/transmission-openvpn-proxy:latest-armhf
+      container_name: transmission-proxy
+      networks:
+        - plexnet
+      links:
+        - transmission:transmission
+      ports:
+        - ${TRANSMISSION_UI_PROXY_PORT}:8080
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+
+    ombi:
+      image: linuxserver/ombi
+      container_name: ombi
+      networks:
+        - plexnet
+        - traefik_proxy
+      environment:
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}
+      volumes:
+        - ${USERDIR}/docker/media/ombi/config:/config
+      labels:
+        - "traefik.enable=true"
+        - "traefik.backend=ombi"
+        - "traefik.frontend.rule=Host:${OMBI_FRONTEND}"
+        - "traefik.port=${OMBI_PORT}"
+        - "traefik.docker.network=traefik_proxy"
     
     tautulli:
       container_name: tautulli
@@ -52,13 +83,13 @@ services:
       environment:
         - PUID=${PUID}
         - PGID=${PGID}
-        - TZ=${TZ}  
+        - TZ=${TZ}
 
     jackett:
       image: linuxserver/jackett
       container_name: jackett
       networks:
-        - media_net
+        - plexnet
       environment:
         - PUID=${MEDIA_PUID}
         - PGID=${MEDIA_PGID}
@@ -86,7 +117,7 @@ services:
       image: linuxserver/headphones
       container_name: headphones
       networks:
-        - media_net
+        - plexnet
       environment:
         - PUID=${MEDIA_PUID}
         - PGID=${MEDIA_PGID}
@@ -102,7 +133,7 @@ services:
       image: linuxserver/radarr
       container_name: radarr
       networks:
-        - media_net
+        - plexnet
       environment:
         - PUID=${MEDIA_PUID}
         - PGID=${MEDIA_PGID}
@@ -118,7 +149,7 @@ services:
       image: linuxserver/sonarr
       container_name: sonarr
       networks:
-        - media_net
+        - plexnet
       environment:
         - PUID=${MEDIA_PUID}
         - PGID=${MEDIA_PGID}
@@ -130,6 +161,26 @@ services:
       ports:
         - "${SONARR_PORT}:8989"
 
+#    bazarr:
+#      image: linuxserver/bazarr
+#      container_name: bazarr
+#      networks:
+#        - plexnet
+#      environment:
+#        - PUID=${MEDIA_PUID}
+#        - PGID=${MEDIA_PGID}
+#        - TZ=${TZ}
+#      volumes:
+#        - ${USERDIR}/docker/media/bazarr/config:/config
+#        - ${MOVIES_PATH}:/movies
+#        - ${SERIES_PATH}:/tv
+#      ports:
+#        - ${BAZARR_PORT}:6767
+
 networks:
-  media_net:
-    driver: bridge
+  traefik_proxy:
+    external:
+      name: traefik_proxy
+  plexnet:
+    external:
+      name: plexnet

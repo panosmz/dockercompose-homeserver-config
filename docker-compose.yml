@@ -3,7 +3,7 @@ services:
 
     traefik:
         hostname: traefik
-        image: traefik:latest
+        image: traefik:1.7.16
         container_name: traefik
         restart: always
         domainname: ${DOMAINNAME}
@@ -47,6 +47,7 @@ services:
       image: homeassistant/raspberrypi3-homeassistant
       depends_on: 
         - mqtt
+        - mariadb
       volumes:
         - ${USERDIR}/docker/homeassistant:/config
         - /etc/localtime:/etc/localtime:ro
@@ -93,6 +94,7 @@ services:
         - PUID=${PUID}
         - PGID=${PGID}
         - TZ=${TZ}
+        - REDIS_HOST=redis
       networks:
         - traefik_proxy
         - default
@@ -107,22 +109,36 @@ services:
         - "traefik.docker.network=traefik_proxy"
         - "traefik.port=80"
 
+    duplicati:
+      image: linuxserver/duplicati
+      container_name: duplicati
+      environment:
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}
+      volumes:
+        - ${USERDIR}/docker/duplicati/config:/config
+        - ${DUPLICATI_PATH}/backups:/backups
+        - ${DUPLICATI_PATH}/source:/source
+      ports:
+        - ${DUPLICATI_PORT}:8200
+
     gogs:
-        container_name: gogs
-        restart: always
-        image: gogs/gogs-rpi
-        links:
-            - mariadb
-        ports:
-            - "${GOGS_SSH_PORT}:22"
-        volumes:
-          - ${GOGS_DATA}:/data
-        labels:
-          - "traefik.enable=true"
-          - "traefik.backend=gogs"
-          - "traefik.frontend.rule=Host:${GOGS_FRONTEND}"
-          - "traefik.port=3000"
-          - "traefik.docker.network=traefik_proxy"
+      container_name: gogs
+      restart: always
+      image: gogs/gogs-rpi
+      links:
+          - mariadb
+      ports:
+          - "${GOGS_SSH_PORT}:22"
+      volumes:
+        - ${GOGS_DATA}:/data
+      labels:
+        - "traefik.enable=true"
+        - "traefik.backend=gogs"
+        - "traefik.frontend.rule=Host:${GOGS_FRONTEND}"
+        - "traefik.port=3000"
+        - "traefik.docker.network=traefik_proxy"
 
     ghost:
       container_name: ghost
@@ -153,6 +169,18 @@ services:
         - "traefik.frontend.rule=Host:${GHOST_FRONTEND}"
         - "traefik.port=2368"
         - "traefik.docker.network=traefik_proxy"
+
+#    grocy:
+#      image: linuxserver/grocy
+#      container_name: grocy
+#      environment:
+#        - PUID=${PUID}
+#        - PGID=${PGID}
+#        - TZ=${TZ}
+#      volumes:
+#        - ${USERDIR}/docker/grocy:/config
+#      ports:
+#        - ${GROCY_PORT}:80
 
     redis:
       image: arm32v7/redis:latest
